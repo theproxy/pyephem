@@ -248,6 +248,39 @@ def describe_riset_search(method):
     """
     return method
 
+
+# Get TLE from Celestrak
+import urllib2
+def getbynoradid(id):
+    link = "https://celestrak.com/cgi-bin/TLE.pl?CATNR="+str(id)
+    conn = urllib2.urlopen(link)
+    data = conn.read()
+    parsed = data[data.index('<PRE>')+6:].split('\n')
+    return readtle(parsed[0],parsed[1],parsed[2])
+
+
+
+
+# Parse TLE input as long string
+def parsetle(string):
+    parsed = string.strip().split('\n')
+    if (parsed.__len__() != 3):
+        print "Error in parsing"
+        return
+    return readtle(parsed[0],parsed[1],parsed[2])
+
+
+# Return Azimuth and Altitude (Elevation) of where to turn your head
+def look(yourhead,satellite):
+    """
+    This helper function tells you where to turn your head to look at 
+    something
+    """
+    # Set time to now
+    yourhead.date = now()
+    satellite.compute(yourhead)
+    return [satellite.az, satellite.alt]
+
 class Observer(_libastro.Observer):
     """A location on earth for which positions are to be computed.
 
